@@ -26,5 +26,9 @@ def scrape_cover_art(directory):
                     print(f"No cover art found for {filename}")
 
 
-directory = r"D:\Programmieren\Python\SpotifyDownloader\downloads"
-scrape_cover_art(directory)
+def run():
+    directory = r"D:\Programmieren\Python\SpotifyDownloader\downloads"
+    scrape_cover_art(directory)
+
+if __name__ == "__main__":
+    run()
