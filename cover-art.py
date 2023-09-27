@@ -1,5 +1,7 @@
 import os
 import eyed3
+import os
+from PIL import Image
 
 def scrape_cover_art(directory):
     # Iterate through all files in the directory
@@ -26,9 +28,31 @@ def scrape_cover_art(directory):
                     print(f"No cover art found for {filename}")
 
 
+def resize_images(directory):
+
+    input_directory = directory
+    output_directory = "D:\Programmieren\Python\SpotifyManager\cover-art"
+
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    for filename in os.listdir(input_directory):
+        if filename.endswith(".jpeg") or filename.endswith(".jpg") or filename.endswith(".png"): 
+      
+            img = Image.open(os.path.join(input_directory, filename))
+            original_width, original_height = img.size
+            new_width = 1280
+            new_height = 1280
+            resized_img = img.resize((new_width, new_height))
+            resized_img.save(os.path.join(output_directory, filename))
+            img.close()
+
+    print("Image resizing complete.")
+
 def run():
-    directory = r"D:\Programmieren\Python\SpotifyDownloader\downloads"
+    directory = r"D:\Programmieren\Python\SpotifyManager\downloads"
     scrape_cover_art(directory)
+    resize_images(directory)
 
 if __name__ == "__main__":
     run()
