@@ -2,6 +2,7 @@ import time
 import pickle
 import pyautogui
 import pytesseract
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -14,10 +15,12 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.alert import Alert
 
 
-email = "***REMOVED***"
-password = "***REMOVED***"
-website_url = "https://distrokid.com/mymusic/"
-
+email = ""
+password = ""
+song_path = ""
+cover_path = ""
+musician_first_name = ""
+musician_last_name = ""
 
 def confirm_alert(driver: webdriver.Chrome):
     try:
@@ -103,25 +106,21 @@ def choose_genre(driver: webdriver.Chrome):
     except Exception as e:
         print("Element not found or unable to click:", str(e))   
 
-def upload_cover_art(driver: webdriver.Chrome):
+def upload_cover_art(driver: webdriver.Chrome, file_path: str):
     try:
         file_input = driver.find_element(By.NAME, "artwork")
         driver.execute_script("arguments[0].scrollIntoView();", file_input)
-        file_path = "D:\Programmieren\Python\SpotifyManager\cover-art\APEIRON - Me Gustas Tu - Sped Up_cover.jpeg"
         file_input.send_keys(file_path)
     except Exception as e:
         print("Element not found or unable to click:", str(e)) 
 
-def input_track_title(driver: webdriver.Chrome):
+def input_track_title(driver: webdriver.Chrome, track_title: str):
     try:
         title_element = driver.find_element(By.CSS_SELECTOR, ".coolInput.cool-input-text.uploadFileTitle.track_1")
         driver.execute_script("arguments[0].scrollIntoView();", title_element)
         title_element.click()
-
         time.sleep(0.5)
-        title = "D:\Programmieren\Python\SpotifyManager\cover-art\APEIRON - Me Gustas Tu - Sped Up_cover.jpeg"
-        print(title.split("\\")[5].replace(".jpeg", ""))
-        pyautogui.typewrite(title.split("\\")[-1].replace(".jpeg", "").replace("_cover", ""))
+        pyautogui.typewrite(track_title)
         time.sleep(0.5)
         pyautogui.click(500, 500)
         confirm_alert(driver)
@@ -147,11 +146,10 @@ def input_musician(driver: webdriver.Chrome, first_name : str, last_name : str):
     except Exception as e:
         print("Element not found or unable to click:", str(e)) 
 
-def upload_song(driver: webdriver.Chrome):
+def upload_song(driver: webdriver.Chrome, file_path: str):
     try:
         file_input = driver.find_element(By.NAME, "file")
         driver.execute_script("arguments[0].scrollIntoView();", file_input)
-        file_path = "D:\Programmieren\Python\SpotifyManager\downloads\APEIRON - Me Gustas Tu - Sped Up.mp3"
         file_input.send_keys(file_path)
 
     except Exception as e:
@@ -186,66 +184,107 @@ def upload_finished_button(driver: webdriver.Chrome):
     except Exception as e:
         print("Element not found or unable to click:", str(e))   
 
-chrome_options = Options()
-#chrome_options.add_argument("--incognito")
-#chrome_options.add_argument("--disable-extensions")
-driver = webdriver.Chrome(options=chrome_options)
 
-try:
-    driver.get(website_url)
-    print("Page Title:", driver.title)
+def delete_assets():
+    for filename in os.listdir(cover_path):
+        file_path = os.path.join(cover_path, filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    for filename in os.listdir(song_path):
+        file_path = os.path.join(song_path, filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    print("Sucesfully removed all temp files.")
 
-    cookie_button_click(driver=driver)
-    add_cookies(driver=driver)
 
-    login_click(driver=driver)
+def init_driver():
+    chrome_options = Options()
+    #chrome_options.add_argument("--incognito")
+    #chrome_options.add_argument("--disable-extensions")
+    driver = webdriver.Chrome(options=chrome_options)
+    return driver
 
-    time.sleep(2)
-    driver.get("https://distrokid.com/new-upload/")
-    time.sleep(1)
 
-    while (driver.current_url != "https://distrokid.com/mymusic/"):
+def main(driver: webdriver.Chrome):
+    try:
+        driver.get("https://distrokid.com/")
+        print("Page Title:", driver.title)
+
+        cookie_button_click(driver=driver)
+        add_cookies(driver=driver)
+
+        login_click(driver=driver)
+
+        time.sleep(2)
+        driver.get("https://distrokid.com/new-upload/")
         time.sleep(1)
+
+        while (driver.current_url != "https://distrokid.com/mymusic/"):
+            time.sleep(1)
+
+
+
+
+        songs = os.listdir(song_path)
+        for song in songs:
+            driver.get("https://distrokid.com/new-upload/")
+
+            song_file_path = os.path.join(song_path, song)
+            print("AUDIO PATH: ", song_file_path)
+            
+            cover_file_path = os.path.join(cover_path, song.replace(".mp3", ".jpeg"))
+            print("COVER PATH: ", cover_file_path)
+
+            song_tile = song.replace(".mp3", "").split("-", 1)[1]
+            print("TITLE: ", song_tile, "\n")
+
+            time.sleep(0.5)
+            choose_genre(driver=driver) 
+            
+            time.sleep(0.5)
+            upload_cover_art(driver=driver, file_path=cover_file_path)
+
+            time.sleep(0.5)
+            input_musician(driver=driver, first_name=musician_first_name, last_name=musician_last_name)
+
+            time.sleep(0.5)
+            upload_song(driver=driver, file_path=song_file_path)
+
+            time.sleep(0.5)
+            input_track_title(driver=driver, track_title=song_tile)
+
+            time.sleep(0.5)
+            accept_requrirements(driver)
+
+            time.sleep(1)
+            upload_finished_button(driver)
+            time.sleep(5)
+            print(f"Fninished uploading {song_tile}.\n")
+            time.sleep(2)
+
+        time.sleep(1)
+        print("\n\nFinished uploading all songs.\n")
+        time.sleep(1)
+        delete_assets()
+
+    except Exception as e: 
+        print("An error occurred:", str(e))
+
     
-    driver.get("https://distrokid.com/new-upload/")
-
-    # Wait for upload page
-    # element = WebDriverWait(driver, 10e100).until(
-    #     EC.visibility_of_element_located((By.ID, "allStoreCheckboxes"))
-    # )
-
-    # NOT IMPLEMENTED FOR NOW
-
-    #Uncheck all boxes except spotify 
-    #uncheck_platforms(driver=driver)
-
-    # ========================
 
 
-    time.sleep(0.5)
-    choose_genre(driver=driver) 
-    
-    time.sleep(0.5)
-    upload_cover_art(driver=driver)
 
-    time.sleep(0.5)
-    input_musician(driver, "enething", ".")
+def run():
+    email = "***REMOVED***"
+    password = "***REMOVED***"
+    song_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "songs")
+    cover_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cover-art")
+    musician_first_name = "enething"
+    musician_last_name = "."
 
-    time.sleep(0.5)
-    upload_song(driver=driver)
+    driver = init_driver()
+    main(driver)
 
-    time.sleep(0.5)
-    input_track_title(driver=driver)
 
-    time.sleep(0.5)
-    accept_requrirements(driver)
-
-    time.sleep(1)
-    upload_finished_button(driver)
-
-except Exception as e: 
-    print("An error occurred:", str(e))
-
-input()
-# time.sleep(5)
-# driver.quit()
+if __name__ == "__main__":
+    run()
