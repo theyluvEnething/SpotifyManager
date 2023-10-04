@@ -1,1 +1,1 @@
-Savify.exe "https://open.spotify.com/playlist/37i9dQZF1DX0mWZXNs0ArA" -q best -f mp3 -o "D:\Programmieren\Python\SpotifyManager\songs"
+Savify.exe "https://open.spotify.com/playlist/37i9dQZF1DXbYM3nMM0oPk" -q best -f mp3 -o "D:\Programmieren\Python\SpotifyManager\songs"
