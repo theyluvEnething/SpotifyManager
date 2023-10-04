@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+*.jpeg
+*.jpg
+*.mp3
+
 # Distribution / packaging
 .Python
 downloads/
