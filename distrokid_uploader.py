@@ -275,8 +275,8 @@ def main(driver: webdriver.Chrome):
 
 
 def run():
-    email = "***REMOVED***"
-    password = "***REMOVED***"
+    email = ""
+    password = ""
     song_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "songs")
     cover_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cover-art")
     musician_first_name = "enething"
