@@ -1,0 +1,1 @@
+savify.exe "https://open.spotify.com/playlist/5TpaMvhDQ1zH8qdPQhz5ks" -q best -f mp3 -o "C:\Users\eneth\Documents\Programmieren\Python\SpotifyManager\downloads"
